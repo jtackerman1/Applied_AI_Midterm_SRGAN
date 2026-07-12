@@ -37,6 +37,8 @@ data/processed/**
 !data/processed/.gitkeep
 data/generated/**
 !data/generated/.gitkeep
+data/splits/**
+!data/splits/.gitkeep
 
 # Checkpoints, trained models, and experiment outputs
 checkpoints/**

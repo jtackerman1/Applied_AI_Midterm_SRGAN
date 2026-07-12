@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# Applied_AI_Midterm_SRGAN
-This Repository will be used to for resources for the SRGAN Project
-=======
 # Applied AI Midterm: Transfer Learning with SRGAN Images
 
 ## Project objective
@@ -76,19 +72,38 @@ python -m ruff check src tests
 
 ## Google Colab workflow
 
-1. Clone or upload this repository into the Colab runtime.
-2. Mount Google Drive if data or future checkpoints are stored there.
-3. Never copy Drive, Kaggle, or Colab credentials into the repository.
-4. Install the project:
+Open [notebooks/00_colab_setup.ipynb](notebooks/00_colab_setup.ipynb) in Colab and select
+**Runtime → Change runtime type → T4 GPU** before running it. The setup notebook:
 
-   ```python
-   %pip install -r requirements.txt
-   %pip install -e .
-   ```
+1. Mounts Google Drive.
+2. Clones or updates this GitHub repository.
+3. Keeps Colab's GPU-enabled PyTorch installation.
+4. Links data, splits, generated images, checkpoints, and artifacts to persistent Drive storage.
+5. Verifies GPU and dataset availability.
+6. Creates or reloads the seed-42 stratified split.
+7. Runs the test suite.
 
-5. Copy or link the dataset into `data/raw/<class_name>/`.
-6. Run the planned notebooks in numeric order after they are implemented.
-7. Store future checkpoints on persistent Drive storage because Colab runtimes are temporary.
+Upload the dataset to this Drive layout before the dataset-verification cell:
+
+```text
+MyDrive/Applied_AI_Midterm_SRGAN_runtime/
+└── data/
+    └── raw/
+        └── train/
+            ├── cats/
+            └── dogs/
+```
+
+The downloaded dataset's `validation/` and `test/` siblings may also be uploaded, but the project
+ignores them and creates its own single 70/30 split from `raw/train`. Do not upload the local
+`data/splits/*.csv` files because they contain machine-specific absolute paths; Colab recreates the
+same assignments with Drive paths.
+
+Run notebooks `01` through `06` in order. Notebook 03 is the long-running stage. Its five-epoch
+checkpoints are stored in Drive, so after a Colab disconnect, rerun notebook 00 and then notebook 03
+to resume. Generated images and final result tables are also stored under the persistent Drive root.
+
+Never place Drive, Kaggle, or Colab credentials inside the repository.
 
 PyTorch and torchvision are the planned deep-learning libraries. TensorFlow is not a dependency.
 
@@ -104,4 +119,3 @@ print(config.random_seed)
 ```
 
 The loader uses `pathlib`, validates required and unknown keys, checks the split ratios and 4× resolution scale, and provides a clear error when the configuration file is missing.
->>>>>>> ef82dc8 (first pass)

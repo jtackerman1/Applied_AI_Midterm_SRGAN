@@ -60,6 +60,20 @@ def test_discovery_rejects_non_binary_dataset(tmp_path: Path) -> None:
         discover_images(raw_directory)
 
 
+def test_vendor_validation_and_test_siblings_are_excluded(tmp_path: Path) -> None:
+    raw_directory = _create_dataset(tmp_path, nested_train=True)
+    for vendor_split in ("validation", "test"):
+        for class_name in ("apples", "oranges"):
+            class_directory = raw_directory / vendor_split / class_name
+            class_directory.mkdir(parents=True)
+            Image.new("RGB", (16, 16)).save(class_directory / "excluded.png")
+
+    discovered = discover_images(raw_directory)
+
+    assert len(discovered) == 20
+    assert all(f"{Path('raw') / 'train'}" in path for path in discovered["filepath"])
+
+
 def test_split_is_stratified_persisted_and_reused(tmp_path: Path) -> None:
     raw_directory = _create_dataset(tmp_path)
     splits_directory = tmp_path / "splits"

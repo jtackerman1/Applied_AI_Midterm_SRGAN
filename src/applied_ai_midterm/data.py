@@ -34,15 +34,10 @@ def resolve_class_root(raw_data_dir: Path) -> Path:
             "Create it with exactly two class folders."
         )
 
-    directories = sorted(path for path in raw_data_dir.iterdir() if path.is_dir())
     train_directory = raw_data_dir / "train"
     if train_directory.is_dir():
-        if directories != [train_directory]:
-            names = [path.name for path in directories]
-            raise ValueError(
-                "When data/raw/train is used, it must be the only directory directly under "
-                f"data/raw; found: {names}."
-            )
+        # Some downloaded datasets include vendor-defined validation/test siblings.
+        # The project deliberately ignores them and creates its own single 70/30 split.
         return train_directory
     return raw_data_dir
 
