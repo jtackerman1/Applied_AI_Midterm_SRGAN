@@ -1,0 +1,17 @@
+# Colab runtime and experiment dependencies
+torch>=2.5
+torchvision>=0.20
+numpy>=1.26
+pandas>=2.2
+scikit-learn>=1.5
+matplotlib>=3.9
+seaborn>=0.13
+Pillow>=10.4
+PyYAML>=6.0.2
+tqdm>=4.66
+jupyter>=1.1
+
+# Foundation quality tooling
+pytest>=8.3
+ruff>=0.9
+

@@ -1,0 +1,60 @@
+# Python caches and test artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Packaging outputs
+build/
+dist/
+*.egg-info/
+
+# Virtual environments and environment variables
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+!.env.example
+
+# Jupyter, editors, and operating-system files
+.ipynb_checkpoints/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Raw, processed, and generated datasets
+data/raw/**
+!data/raw/.gitkeep
+data/processed/**
+!data/processed/.gitkeep
+data/generated/**
+!data/generated/.gitkeep
+
+# Checkpoints, trained models, and experiment outputs
+checkpoints/**
+!checkpoints/.gitkeep
+artifacts/**
+!artifacts/.gitkeep
+reports/figures/**
+!reports/figures/.gitkeep
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Credentials and external-service secrets
+kaggle.json
+*credentials*.json
+*client_secret*.json
+service-account*.json
+token.json
+.kaggle/
+.config/gcloud/
+
