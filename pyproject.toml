@@ -8,7 +8,14 @@ version = "0.1.0"
 description = "Reproducible PyTorch comparison of original-image and SRGAN-image classifiers"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-dependencies = ["PyYAML>=6.0.2"]
+dependencies = [
+    "pandas>=2.2",
+    "Pillow>=10.4",
+    "PyYAML>=6.0.2",
+    "scikit-learn>=1.5",
+    "torch>=2.5",
+    "torchvision>=0.20",
+]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.3", "ruff>=0.9"]
@@ -19,6 +26,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
+addopts = ["--basetemp=.pytest-tmp", "-p", "no:cacheprovider"]
 
 [tool.ruff]
 line-length = 100
