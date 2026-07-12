@@ -72,9 +72,8 @@ python -m ruff check src tests
 
 ## Google Colab workflow
 
-Open [notebooks/00_colab_setup.ipynb](notebooks/00_colab_setup.ipynb) in Colab and select
-**Runtime → Change runtime type → T4 GPU** before running it. The setup notebook:
-
+The setup notebook:
+[text](notebooks/00_colab_setup.ipynb) Covers the steps below
 1. Mounts Google Drive.
 2. Clones or updates this GitHub repository.
 3. Keeps Colab's GPU-enabled PyTorch installation.
@@ -82,7 +81,17 @@ Open [notebooks/00_colab_setup.ipynb](notebooks/00_colab_setup.ipynb) in Colab a
 5. Verifies GPU and dataset availability.
 6. Creates or reloads the seed-42 stratified split.
 7. Runs the test suite.
+Then combine with the six notebooks below to run in Google colab 
+1. `01_data_preparation.ipynb` — inspect data and persist the stratified split.
+2. `02_train_classifier_original.ipynb` — train Model A.
+3. `03_train_srgan.ipynb` — train and checkpoint the SRGAN.
+4. `04_generate_srgan_images.ipynb` — create Model B inputs.
+5. `05_train_classifier_generated.ipynb` — train Model B.
+6. `06_evaluate_and_compare.ipynb` — evaluate both models and generate reports.
 
+Save the combined file as notebooks/Applied_AI_Midterm_SRgan_Complete.ipynb
+Open [notebooks/Applied_AI_Midterm_SRgan_Complete.ipynb](notebooks/Applied_AI_Midterm_SRgan_Complete.ipynb) in Colab and select
+**Runtime → Change runtime type → T4 GPU** before running it. 
 Upload the dataset to this Drive layout before the dataset-verification cell:
 
 ```text
