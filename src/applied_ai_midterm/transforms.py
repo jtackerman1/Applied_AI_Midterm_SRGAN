@@ -53,6 +53,13 @@ def denormalize_imagenet(tensor: Tensor) -> Tensor:
     return (tensor * std + mean).clamp(0.0, 1.0)
 
 
+def normalize_imagenet_tensor(tensor: Tensor) -> Tensor:
+    """Apply ImageNet normalization to an RGB tensor already in ``[0, 1]``."""
+    mean = tensor.new_tensor(IMAGENET_MEAN).view(-1, 1, 1)
+    std = tensor.new_tensor(IMAGENET_STD).view(-1, 1, 1)
+    return (tensor - mean) / std
+
+
 def normalize_srgan(tensor: Tensor) -> Tensor:
     """Map an image tensor from ``[0, 1]`` to the SRGAN range ``[-1, 1]``."""
     return tensor.mul(2.0).sub(1.0)

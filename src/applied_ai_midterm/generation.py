@@ -35,6 +35,50 @@ def _validate_training_frame(training_frame: pd.DataFrame) -> None:
             raise ValueError(f"Invalid class name for output directory: {class_name!r}")
 
 
+def load_generated_training_manifest(
+    manifest_path: Path, expected_training_frame: pd.DataFrame
+) -> pd.DataFrame:
+    """Validate a one-to-one generated manifest and return a classifier-ready frame."""
+    _validate_training_frame(expected_training_frame)
+    manifest_path = Path(manifest_path)
+    if not manifest_path.is_file():
+        raise FileNotFoundError(f"Generated training manifest not found: {manifest_path.resolve()}")
+    manifest = pd.read_csv(manifest_path)
+    if list(manifest.columns) != MANIFEST_COLUMNS:
+        raise ValueError(
+            f"Invalid generated manifest columns: expected {MANIFEST_COLUMNS}, "
+            f"found {list(manifest.columns)}."
+        )
+    if manifest["source_filepath"].duplicated().any():
+        raise ValueError("Generated manifest contains duplicate source mappings.")
+    expected = expected_training_frame.copy()
+    expected["source_filepath"] = expected["filepath"].map(lambda value: str(Path(value).resolve()))
+    expected_records = {
+        (row.source_filepath, str(row.class_name), int(row.label))
+        for row in expected.itertuples()
+    }
+    manifest_records = {
+        (str(Path(row.source_filepath).resolve()), str(row.class_name), int(row.label))
+        for row in manifest.itertuples()
+    }
+    if manifest_records != expected_records or len(manifest) != len(expected):
+        raise ValueError(
+            "Generated manifest must map exactly every persisted training source with "
+            "matching class and label."
+        )
+    missing_generated = [
+        path for path in manifest["generated_filepath"] if not Path(path).is_file()
+    ]
+    if missing_generated:
+        raise FileNotFoundError(
+            f"Generated manifest references missing image: {missing_generated[0]}"
+        )
+    classifier_frame = manifest[["generated_filepath", "class_name", "label"]].rename(
+        columns={"generated_filepath": "filepath"}
+    )
+    return classifier_frame.sort_values("filepath").reset_index(drop=True)
+
+
 @torch.inference_mode()
 def generate_training_images(
     generator: nn.Module,

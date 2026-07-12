@@ -7,9 +7,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
+import torch
 from PIL import Image
 from sklearn.model_selection import train_test_split
-from torch import Tensor
+from torch import Tensor, nn
 from torch.utils.data import Dataset
 
 VALID_IMAGE_EXTENSIONS = frozenset({".jpg", ".jpeg", ".png", ".webp"})
@@ -194,3 +195,43 @@ class SRGANPathDataset(Dataset[tuple[Tensor, Tensor]]):
     def __getitem__(self, index: int) -> tuple[Tensor, Tensor]:
         with Image.open(self.frame.iloc[index]["filepath"]) as image:
             return self.transform(image.convert("RGB"))
+
+
+class SRGANClassifierDataset(Dataset[tuple[Tensor, int]]):
+    """Generate classifier inputs on-the-fly from reserved source examples."""
+
+    def __init__(
+        self,
+        frame: pd.DataFrame,
+        generator: nn.Module,
+        device: torch.device,
+        *,
+        low_resolution_size: int = 32,
+        high_resolution_size: int = 128,
+    ) -> None:
+        if frame.empty:
+            raise ValueError("SRGAN classifier dataset frame cannot be empty.")
+        self.frame = frame.reset_index(drop=True).copy()
+        self.generator = generator.to(device).eval()
+        self.device = device
+        from applied_ai_midterm.transforms import SRGANPairTransform
+
+        self.pair_transform = SRGANPairTransform(
+            training=False,
+            low_resolution_size=low_resolution_size,
+            high_resolution_size=high_resolution_size,
+        )
+
+    def __len__(self) -> int:
+        return len(self.frame)
+
+    @torch.inference_mode()
+    def __getitem__(self, index: int) -> tuple[Tensor, int]:
+        from applied_ai_midterm.transforms import denormalize_srgan, normalize_imagenet_tensor
+
+        row = self.frame.iloc[index]
+        with Image.open(row["filepath"]) as image:
+            low_resolution, _ = self.pair_transform(image.convert("RGB"))
+        generated = self.generator(low_resolution.unsqueeze(0).to(self.device)).squeeze(0)
+        classifier_tensor = normalize_imagenet_tensor(denormalize_srgan(generated).cpu())
+        return classifier_tensor, int(row["label"])
