@@ -229,6 +229,9 @@ def save_srgan_checkpoint(
                 else None
             ),
             "history": history,
+            "generator_selection_loss": (
+                history["generator_total"][-1] if history["generator_total"] else None
+            ),
             "random_seed": config.get("random_seed"),
             "config": config,
         },
@@ -247,6 +250,43 @@ def latest_srgan_checkpoint(checkpoint_dir: Path) -> Path | None:
         if match:
             candidates.append((int(match.group(1)), path))
     return max(candidates, default=(0, None), key=lambda item: item[0])[1]
+
+
+def best_srgan_generator_checkpoint(checkpoint_dir: Path) -> Path:
+    """Select the checkpoint with the lowest recorded total generator loss."""
+    checkpoint_dir = Path(checkpoint_dir)
+    if not checkpoint_dir.is_dir():
+        raise FileNotFoundError(f"SRGAN checkpoint directory not found: {checkpoint_dir.resolve()}")
+    candidates: list[tuple[float, int, Path]] = []
+    for path in checkpoint_dir.glob("srgan_epoch_*.pt"):
+        match = CHECKPOINT_PATTERN.fullmatch(path.name)
+        if match is None:
+            continue
+        checkpoint = torch.load(path, map_location="cpu", weights_only=False)
+        selection_loss = checkpoint.get("generator_selection_loss")
+        if selection_loss is None:
+            losses = checkpoint.get("history", {}).get("generator_total", [])
+            selection_loss = losses[-1] if losses else None
+        if selection_loss is not None:
+            candidates.append((float(selection_loss), -int(match.group(1)), path))
+    if not candidates:
+        raise FileNotFoundError(
+            f"No SRGAN checkpoints with generator loss history found in: "
+            f"{checkpoint_dir.resolve()}"
+        )
+    return min(candidates, key=lambda item: (item[0], item[1]))[2]
+
+
+def load_best_generator(
+    generator: nn.Module, checkpoint_dir: Path, device: torch.device
+) -> tuple[Path, dict[str, Any]]:
+    """Load the best recorded adversarial generator state for inference."""
+    checkpoint_path = best_srgan_generator_checkpoint(checkpoint_dir)
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+    generator.load_state_dict(checkpoint["generator_state"])
+    generator.to(device)
+    generator.eval()
+    return checkpoint_path, checkpoint
 
 
 def load_srgan_checkpoint(
