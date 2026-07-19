@@ -94,7 +94,7 @@ Then combine [notebooks/00_colab_setup.ipynb](notebooks/00_colab_setup.ipynb) wi
 Save the combined file as notebooks/Applied_AI_Midterm_SRgan_Complete.ipynb.
 
 Open [notebooks/Applied_AI_Midterm_SRgan_Complete.ipynb](notebooks/Applied_AI_Midterm_SRgan_Complete.ipynb) in Colab and select
-**Runtime → Change runtime type → T4 GPU** before running it. 
+**Runtime → Change runtime type → A100** before running it. 
 Upload the dataset to this Drive layout before the dataset-verification cell:
 
 ```text
